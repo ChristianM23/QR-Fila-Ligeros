@@ -1,0 +1,37 @@
+@media only screen and (max-width:1024px) {
+    #menu_hamburguesa {display:block; float:right;}
+
+    .responsive {display:none; float:none; text-align:left; margin-left:10px; border-bottom:1px solid black; height:0px;} 
+
+    .desplegable {display:block; float:none; text-align:right; border-bottom:1px solid white;}
+
+    nav ul {width:100%; margin-bottom:0px;}
+
+    .resp_margin_top {margin-top: 10px;}
+}
+
+@media only screen and (min-width:1430px) {
+    #menu_hamburguesa {display:none;}
+
+    nav ul {margin-top:13px;}
+}
+
+* {border:0; margin:0; padding:0;}
+
+/* CABECERA */
+nav {width:100%; position:fixed; z-index:100; top:0; left:0; right:0; height:55px;}
+
+nav ul {list-style-type:none; display:inline-block;}
+
+nav li {display:inline; cursor:pointer;}
+
+nav li:hover {background-color:rgba(0,0,0,0.25); text-decoration:none;}
+
+/* ELEMENTOS */
+.icono {cursor:pointer;}
+
+/* DATATABLES */
+.dataTables_wrapper .dataTables_length select {padding-right:30px;}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {padding:0}
+
