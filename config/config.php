@@ -9,7 +9,7 @@ define('DB_CHARSET', 'utf8mb4');
 // URLs del proyecto
 define('BASE_URL', 'http://localhost/crm_ligeros/');
 define('API_URL', BASE_URL . 'api/');
-define('FRONTEND_URL', BASE_URL . 'views/');
+define('VIEWS_URL', BASE_URL . 'views/');
 
 // Configuración de seguridad
 define('JWT_SECRET', 'ligeros_1873_fila_CRM');
