@@ -1,4 +1,9 @@
-USE crm_ligeros
+USE crm_ligeros;
+
+DROP TABLE IF EXISTS attendance_log;
+DROP TABLE IF EXISTS user_sessions;
+DROP TABLE IF EXISTS members;
+DROP TABLE IF EXISTS users;
 
 -- Tabla de usuarios
 CREATE TABLE users (
@@ -29,14 +34,14 @@ CREATE TABLE members (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- Tabla de registro de asistencia
 CREATE TABLE attendance_log (
     id INT PRIMARY KEY AUTO_INCREMENT,
     member_id INT NOT NULL,
-    event_name VARCHAR(200) DEFAULT '',
+    event_name VARCHAR(200) DEFAULT 'Asistencia General',
     scan_datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     scanner_user_id INT,
+    ip_address VARCHAR(45),
     user_agent TEXT,
     notes TEXT,
     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
@@ -55,11 +60,27 @@ CREATE TABLE user_sessions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-- Insertar usuario admin por defecto
+-- Insertar usuario superadmin
 INSERT INTO users (username, email, password_hash, user_level) VALUES 
 ('superadmin', 'superadmin@ligeros.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 10);
--- Contraseña: password (cambiar en producción)
 
--- Insertar miembro de ejemplo
+-- Insertar usuarios adicionales
+INSERT INTO users (username, email, password_hash, user_level) VALUES 
+('admin', 'admin@ligeros.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 9),
+('primertro', 'primertro@ligeros.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 8);
+
+-- Insertar miembros de ejemplo
 INSERT INTO members (name, surname, dni, email, user_level) VALUES 
-('Usuario', 'Demo', '12345678A', 'demo@ligeros.com', '1', 1);
+('Usuario', 'Demo', '12345678A', 'demo@ligeros.com', 1),
+('María', 'García', '87654321B', 'maria@ligeros.com', 1),
+('Carlos', 'López', '11223344C', 'carlos@ligeros.com', 2),
+('Ana', 'Fernández', '44332211D', 'ana@ligeros.com', 1),
+('Pedro', 'Martínez', '55667788E', 'pedro@ligeros.com', 3);
+
+-- Insertar algunos registros de asistencia de ejemplo
+INSERT INTO attendance_log (member_id, event_name, scanner_user_id, ip_address) VALUES 
+(1, 'Reunión General', 1, '127.0.0.1'),
+(2, 'Reunión General', 1, '127.0.0.1'),
+(3, 'Evento Especial', 2, '127.0.0.1'),
+(1, 'Asistencia Diaria', 1, '127.0.0.1'),
+(4, 'Asistencia Diaria', 1, '127.0.0.1');
