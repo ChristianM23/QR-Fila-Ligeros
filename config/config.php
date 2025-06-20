@@ -1,13 +1,13 @@
 <?php
 // Configuración para desarrollo local en Laragon
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'crm-ligeros');
+define('DB_NAME', 'crm_ligeros');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
 
 // URLs del proyecto
-define('BASE_URL', 'http://localhost/crm_ligeros/');
+define('BASE_URL', 'https://crm_ligeros.test/');
 define('API_URL', BASE_URL . 'api/');
 define('VIEWS_URL', BASE_URL . 'views/');
 

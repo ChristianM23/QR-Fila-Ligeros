@@ -1,23 +1,89 @@
-dist
-dist-*
-cabal-dev
-*.o
-*.hi
-*.hie
-*.chi
-*.chs.h
-*.dyn_o
-*.dyn_hi
-.hpc
-.hsenv
-.cabal-sandbox/
-cabal.sandbox.config
-*.prof
-*.aux
-*.hp
-*.eventlog
-.stack-work/
-cabal.project.local
-cabal.project.local~
-.HTF/
-.ghc.environment.*
+# Archivos de configuración sensibles
+config/config.php
+config/database.php
+.env
+.env.local
+.env.production
+
+# Directorios de archivos generados
+src/qr-codes/*.png
+src/qr-codes/*.jpg
+src/qr-codes/*.jpeg
+src/qr-codes/*.gif
+logs/*.log
+logs/*.txt
+uploads/*
+temp/*
+
+# Mantener estructura de directorios pero no el contenido
+!src/qr-codes/.gitkeep
+!logs/.gitkeep
+!uploads/.gitkeep
+!temp/.gitkeep
+
+# Archivos de sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.tmp
+*.temp
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependencias de Node.js (si usas npm/yarn para frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de backup
+*.bak
+*.backup
+*.old
+
+# Archivos de cache
+cache/
+*.cache
+
+# Archivos de sesiones PHP
+sessions/
+tmp/
+
+# Composer (si lo usas)
+vendor/
+composer.phar
+composer.lock
+
+# Archivos de base de datos
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# Except schema/structure files
+!sql/database_setup.sql
+!sql/schema.sql
+
+# Archivos de log específicos del proyecto
+error.log
+access.log
+php_errors.log
+
+# Archivos de configuración del servidor local
+.htaccess.local
+httpd.conf
+nginx.conf
+
+# Archivos temporales de PHP
+*.tmp
+*.temp
+phpinfo.php
