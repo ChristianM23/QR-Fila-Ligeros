@@ -201,4 +201,3 @@ configureSecureSessions();
 if (random_int(1, 100) === 1) {
     cleanupOldLogs();
 }
-?>

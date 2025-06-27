@@ -46,6 +46,6 @@ echo "<h2>🚀 URLs del proyecto:</h2>";
 echo "<ul>";
 echo "<li><a href='" . BASE_URL . "'>Base URL</a></li>";
 echo "<li><a href='" . API_URL . "'>API URL</a></li>";
-echo "<li><a href='" . FRONTEND_URL . "'>Frontend URL</a></li>";
+echo "<li><a href='" . VIEWS_URL . "'>Frontend URL</a></li>";
 echo "</ul>";
 ?>
