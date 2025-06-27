@@ -7,7 +7,7 @@ define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
 
 // URLs del proyecto
-define('BASE_URL', 'https://crm_ligeros.test/');
+define('BASE_URL', 'https://crm-ligeros.test/');
 define('API_URL', BASE_URL . 'api/');
 define('VIEWS_URL', BASE_URL . 'views/');
 
@@ -27,8 +27,15 @@ date_default_timezone_set('Europe/Madrid');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Headers de seguridad básicos
-header('X-Frame-Options: DENY');
-header('X-Content-Type-Options: nosniff');
-header('X-XSS-Protection: 1; mode=block');
+/**
+ * Función para configurar headers de seguridad cuando sea necesario
+ */
+function setSecurityHeaders() {
+    if (!headers_sent()) {
+        header('X-Frame-Options: DENY');
+        header('X-Content-Type-Options: nosniff');
+        header('X-XSS-Protection: 1; mode=block');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+    }
+}
 ?>

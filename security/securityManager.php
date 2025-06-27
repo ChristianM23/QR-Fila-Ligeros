@@ -40,6 +40,7 @@ class SecurityManager {
         $allowedOrigins = [
             'http://localhost',
             'http://crm-ligeros.test',
+            'https://crm-ligeros.test',
             'http://localhost:3000'
         ];
         
