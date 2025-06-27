@@ -3,43 +3,57 @@
  * Configuración de Seguridad
  */
 
-// Configuración de Rate Limiting
+// ============================================================================
+// CONFIGURACIÓN DE RATE LIMITING
+// ============================================================================
 define('RATE_LIMIT_REQUESTS', 100);        // Requests por hora por IP
 define('RATE_LIMIT_TIME_WINDOW', 3600);    // 1 hora en segundos
 define('RATE_LIMIT_LOGIN', 5);             // Intentos de login por IP
 define('RATE_LIMIT_LOGIN_WINDOW', 900);    // 15 minutos
 
-// Configuración de Brute Force Protection
+// ============================================================================
+// CONFIGURACIÓN DE PROTECCIÓN BRUTE FORCE
+// ============================================================================
 define('MAX_LOGIN_ATTEMPTS', 5);           // Intentos máximos de login
 define('LOCKOUT_TIME', 900);               // 15 minutos de bloqueo
 
-// Configuración de Passwords
+// ============================================================================
+// CONFIGURACIÓN DE PASSWORDS
+// ============================================================================
 define('MIN_PASSWORD_LENGTH', 8);
 define('REQUIRE_UPPERCASE', true);
 define('REQUIRE_LOWERCASE', true);
 define('REQUIRE_NUMBERS', true);
 define('REQUIRE_SPECIAL_CHARS', true);
 
-// Configuración de JWT
+// ============================================================================
+// CONFIGURACIÓN DE JWT
+// ============================================================================
 define('JWT_ALGORITHM', 'HS256');
 define('JWT_REFRESH_EXPIRE', 604800);      // 7 días para refresh token
 
-// IPs permitidas para administración (opcional)
+// ============================================================================
+// IPs PERMITIDAS PARA ADMINISTRACIÓN (OPCIONAL)
+// ============================================================================
 define('ADMIN_ALLOWED_IPS', [
     '127.0.0.1',
     '::1',
-    // Agregar IPs específicas si es necesario
+    // Agregar IPs específicas si es necesario para administradores
 ]);
 
-// Dominios permitidos para CORS
+// ============================================================================
+// DOMINIOS PERMITIDOS PARA CORS
+// ============================================================================
 define('ALLOWED_ORIGINS', [
     'http://localhost',
     'http://crm-ligeros.test',
-    'http://localhost:3000',
-    'https://crm-ligeros.test' // Para producción
+    'https://crm-ligeros.test', // Para producción
+    'http://localhost:3000'     // Para desarrollo frontend
 ]);
 
-// Configuración de archivos
+// ============================================================================
+// CONFIGURACIÓN DE ARCHIVOS
+// ============================================================================
 define('MAX_UPLOAD_SIZE', 5242880);        // 5MB máximo por archivo
 define('ALLOWED_FILE_TYPES', [
     'image/jpeg',
@@ -48,48 +62,57 @@ define('ALLOWED_FILE_TYPES', [
     'application/pdf'
 ]);
 
-// Configuración de logs de seguridad
+// ============================================================================
+// CONFIGURACIÓN DE LOGS DE SEGURIDAD
+// ============================================================================
 define('SECURITY_LOG_RETENTION', 90);      // Días que se mantienen los logs
 define('LOG_SENSITIVE_DATA', false);       // No loggear datos sensibles
 
-/**
- * Funciones de validación de seguridad
- */
+// ============================================================================
+// FUNCIONES DE VALIDACIÓN DE SEGURIDAD
+// ============================================================================
 
 /**
  * Validar fortaleza de contraseña
+ * Verifica que la contraseña cumpla con los requisitos de seguridad
  */
 function validatePasswordStrength($password) {
     $errors = [];
     
+    // Verificar longitud mínima
     if (strlen($password) < MIN_PASSWORD_LENGTH) {
         $errors[] = "La contraseña debe tener al menos " . MIN_PASSWORD_LENGTH . " caracteres";
     }
     
+    // Verificar mayúsculas
     if (REQUIRE_UPPERCASE && !preg_match('/[A-Z]/', $password)) {
         $errors[] = "La contraseña debe contener al menos una letra mayúscula";
     }
     
+    // Verificar minúsculas
     if (REQUIRE_LOWERCASE && !preg_match('/[a-z]/', $password)) {
         $errors[] = "La contraseña debe contener al menos una letra minúscula";
     }
     
+    // Verificar números
     if (REQUIRE_NUMBERS && !preg_match('/[0-9]/', $password)) {
         $errors[] = "La contraseña debe contener al menos un número";
     }
     
+    // Verificar caracteres especiales
     if (REQUIRE_SPECIAL_CHARS && !preg_match('/[^a-zA-Z0-9]/', $password)) {
         $errors[] = "La contraseña debe contener al menos un carácter especial";
     }
     
-    // Verificar contraseñas comunes
+    // Verificar contraseñas comunes (lista básica)
     $commonPasswords = [
         'password', '123456', '123456789', 'qwerty', 'abc123',
-        'password123', 'admin', 'letmein', 'welcome', 'monkey'
+        'password123', 'admin', 'letmein', 'welcome', 'monkey',
+        'ligeros', 'asociacion', 'crm123'
     ];
     
     if (in_array(strtolower($password), $commonPasswords)) {
-        $errors[] = "La contraseña es demasiado común";
+        $errors[] = "La contraseña es demasiado común, usa una más segura";
     }
     
     return $errors;
@@ -99,8 +122,9 @@ function validatePasswordStrength($password) {
  * Verificar si una IP está en la lista de IPs permitidas para admin
  */
 function isAdminIPAllowed($ip) {
+    // Si no hay restricciones de IP, permitir todas
     if (empty(ADMIN_ALLOWED_IPS)) {
-        return true; // Si no hay restricciones de IP
+        return true;
     }
     
     return in_array($ip, ADMIN_ALLOWED_IPS);
@@ -121,27 +145,6 @@ function isOriginAllowed($origin) {
 }
 
 /**
- * Limpiar logs antiguos
- */
-function cleanupOldLogs() {
-    $logDir = LOG_PATH;
-    $retentionDays = SECURITY_LOG_RETENTION;
-    
-    if (!is_dir($logDir)) {
-        return;
-    }
-    
-    $files = glob($logDir . '*.log');
-    $cutoffTime = time() - ($retentionDays * 24 * 60 * 60);
-    
-    foreach ($files as $file) {
-        if (filemtime($file) < $cutoffTime) {
-            unlink($file);
-        }
-    }
-}
-
-/**
  * Detectar patrones de ataque en requests
  */
 function detectAttackPatterns($input) {
@@ -154,10 +157,6 @@ function detectAttackPatterns($input) {
     
     foreach ($patterns as $type => $pattern) {
         if (preg_match($pattern, $input)) {
-            SecurityManager::logSecurityEvent('ATTACK_DETECTED', "Detected $type pattern", [
-                'pattern' => $type,
-                'input' => substr($input, 0, 200) // Solo log primeros 200 chars
-            ]);
             return $type;
         }
     }
@@ -194,10 +193,43 @@ function isHTTPS() {
            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 }
 
+/**
+ * Limpiar logs antiguos
+ */
+function cleanupOldLogs() {
+    $logDir = LOG_PATH;
+    $retentionDays = SECURITY_LOG_RETENTION;
+    
+    if (!is_dir($logDir)) {
+        return;
+    }
+    
+    $files = glob($logDir . '*.log');
+    $cutoffTime = time() - ($retentionDays * 24 * 60 * 60);
+    
+    foreach ($files as $file) {
+        if (filemtime($file) < $cutoffTime) {
+            unlink($file);
+        }
+    }
+}
+
+// ============================================================================
+// INICIALIZACIÓN AUTOMÁTICA
+// ============================================================================
+
 // Configurar sesiones seguras al cargar este archivo
 configureSecureSessions();
 
-// Limpiar logs antiguos (ejecutar ocasionalmente)
+// Limpiar logs antiguos ocasionalmente (1% de probabilidad)
 if (random_int(1, 100) === 1) {
     cleanupOldLogs();
 }
+
+// Mostrar mensaje de confirmación si se ejecuta directamente
+if (basename($_SERVER['PHP_SELF']) === 'security.php') {
+    echo "🔒 Configuración de seguridad cargada correctamente\n";
+    echo "✅ Sesiones seguras configuradas\n";
+    echo "✅ Funciones de validación disponibles\n";
+}
+?>
