@@ -107,7 +107,7 @@ function validatePasswordStrength($password) {
     // Verificar contraseñas comunes (lista básica)
     $commonPasswords = [
         'password', '123456', '123456789', 'qwerty', 'abc123',
-        'password123', 'admin', 'letmein', 'welcome', 'monkey',
+        'password123', 'admin', 'welcome',
         'ligeros', 'asociacion', 'crm123'
     ];
     
