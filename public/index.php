@@ -22,7 +22,7 @@ try {
     $app = new Application(PROJECT_ROOT);
     
     // Ejecutar en modo compatibilidad (mantiene funcionalidad existente)
-    $app->runLegacy();
+    $app->run();
     
 } catch (Exception $e) {
     // Manejo de errores críticos

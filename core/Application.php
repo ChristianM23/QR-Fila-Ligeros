@@ -124,6 +124,9 @@ private function defineConstants() {
      * Inicializar sistema existente de seguridad
      */
     public function initializeLegacySystem() {
+        // Cargar Router
+        require_once $this->basePath . '/core/Http/Router.php';
+        
         // Cargar sistema de seguridad desde la nueva ubicación
         $securityFiles = [
             $this->basePath . '/core/Security/SecurityManager.php',
@@ -143,43 +146,48 @@ private function defineConstants() {
     }
     
     /**
-     * Ejecutar aplicación en modo compatibilidad
-     * Por ahora mantiene el comportamiento existente
+     * Ejecutar aplicación con sistema de rutas moderno
      */
-    public function runLegacy() {
+    public function run() {
         try {
             // Inicializar sistema de seguridad
             $this->initializeLegacySystem();
             
-            // Determinar qué mostrar basado en la URL
-            $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-            $path = parse_url($requestUri, PHP_URL_PATH);
+            // Crear router y cargar rutas
+            $router = new Router();
+            $router->loadRoutes($this->basePath . '/config/routes.php');
             
-            // Routing básico para empezar
-            switch ($path) {
-                case '/':
-                case '/dashboard':
-                    $this->showDashboard();
-                    break;
-                    
-                case '/login':
-                    $this->showLogin();
-                    break;
-                    
-                case '/api/':
-                case '/api':
-                    $this->handleApi();
-                    break;
-                    
-                default:
-                    // Por ahora, redirigir a login
-                    $this->redirectToLogin();
-                    break;
+            try {
+                // Resolver ruta actual
+                $route = $router->resolve();
+                $result = $route->handle();
+                
+                // Si el resultado es una respuesta, mostrarla
+                if (is_string($result)) {
+                    echo $result;
+                }
+                
+            } catch (RouteNotFoundException $e) {
+                // Ruta no encontrada - mostrar 404
+                $this->show404();
+            } catch (Exception $e) {
+                // Error en el controlador
+                throw $e;
             }
             
         } catch (Exception $e) {
             $this->handleError($e);
         }
+    }
+
+    /**
+     * Mostrar página 404
+     */
+    private function show404() {
+        http_response_code(404);
+        echo "<h1>404 - Página no encontrada</h1>";
+        echo "<p>La página que buscas no existe.</p>";
+        echo "<p><a href='/'>← Volver al inicio</a></p>";
     }
     
     /**
