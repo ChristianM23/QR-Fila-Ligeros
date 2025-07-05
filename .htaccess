@@ -1,6 +1,6 @@
 # ============================================================================
-# CRM LIGEROS - CONFIGURACIÓN APACHE FINAL
-# .htaccess - Paso 1D: Configuración simplificada y funcional
+# CRM LIGEROS v2.0 - CONFIGURACIÓN APACHE ACTUALIZADA
+# .htaccess - Sistema con nueva estructura
 # ============================================================================
 
 # Activar motor de reescritura
@@ -27,6 +27,11 @@ Options -Indexes
 
 # Proteger archivos de configuración
 <Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "app.php">
     Order Allow,Deny
     Deny from all
 </Files>
@@ -59,24 +64,39 @@ Options -Indexes
     Deny from all
 </Files>
 
+# Proteger directorios del core y app
+RedirectMatch 403 ^/(app|core|storage|config)/.*$
+
 # ============================================================================
-# RUTAS DE LA APLICACIÓN
+# RUTAS DE LA APLICACIÓN v2.0
 # ============================================================================
 
-# Redirigir raíz al frontend
-RewriteRule ^$ views/ [L]
+# Servir archivos estáticos directamente
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^public/(.*)$ public/$1 [L]
 
-# API Routes - Todo lo que empiece por 'api/' va a api/index.php
+# Permitir acceso directo a assets
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+# Permitir acceso directo a uploads
+RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
+
+# Compatibilidad: permitir login.php directo temporalmente
+RewriteRule ^login\.php$ login.php [L]
+
+# API Routes - mantener funcionalidad existente
 RewriteRule ^api/(.*)$ api/index.php [QSA,L]
 
-# Frontend Routes - 'app/' va a views/
-RewriteRule ^app/(.*)$ views/$1 [L]
+# Redirigir raíz al nuevo sistema
+RewriteRule ^$ public/index.php [L]
 
-# Admin Routes - 'admin/' va a views/admin/
-RewriteRule ^admin/(.*)$ views/admin/$1 [L]
+# Todas las demás rutas van al nuevo punto de entrada
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [QSA,L]
 
 # ============================================================================
-# HEADERS DE SEGURIDAD (Solo si mod_headers está disponible)
+# HEADERS DE SEGURIDAD
 # ============================================================================
 
 <IfModule mod_headers.c>
@@ -114,7 +134,7 @@ RewriteRule ^admin/(.*)$ views/admin/$1 [L]
 </IfModule>
 
 # ============================================================================
-# COMPRESIÓN (Solo si mod_deflate está disponible)
+# COMPRESIÓN
 # ============================================================================
 
 <IfModule mod_deflate.c>
@@ -134,12 +154,6 @@ RewriteRule ^admin/(.*)$ views/admin/$1 [L]
 
 # Limitar tamaño de upload (10MB)
 LimitRequestBody 10485760
-
-# Bloquear acceso a directorios específicos
-RedirectMatch 403 ^/logs/.*$
-RedirectMatch 403 ^/cache/.*$
-RedirectMatch 403 ^/temp/.*$
-RedirectMatch 403 ^/security/.*$
 
 # ============================================================================
 # PÁGINAS DE ERROR PERSONALIZADAS

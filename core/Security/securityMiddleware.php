@@ -137,12 +137,29 @@ class SecurityMiddleware {
             }
         }
         
-        // Verificar headers sospechosos
-        $suspiciousHeaders = ['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_USER_AGENT'];
+        // Verificar headers sospechosos (User-Agent deshabilitado temporalmente)
+        $suspiciousHeaders = ['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP'];
         foreach ($suspiciousHeaders as $header) {
             $value = $_SERVER[$header] ?? '';
             if (!empty($value) && detectAttackPatterns($value)) {
                 return true;
+            }
+        }
+
+        // Verificar User-Agent solo para patrones realmente peligrosos
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        if (!empty($userAgent)) {
+            // Solo detectar User-Agents claramente maliciosos
+            $dangerousUA = [
+                'sqlmap', 'nikto', 'nessus', 'burp', 'dirbuster', 
+                'masscan', 'nmap', 'wget', 'curl'
+            ];
+            
+            $userAgentLower = strtolower($userAgent);
+            foreach ($dangerousUA as $danger) {
+                if (strpos($userAgentLower, $danger) !== false) {
+                    return true;
+                }
             }
         }
         

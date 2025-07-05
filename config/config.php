@@ -76,7 +76,7 @@ require_once __DIR__ . '/security.php';
 // ============================================================================
 // CARGAR SISTEMA DE SEGURIDAD
 // ============================================================================
-require_once __DIR__ . '/../security/SecurityBootstrap.php';
+require_once __DIR__ . '/bootstrap.php';
 
 // ============================================================================
 // FUNCIONES DE UTILIDAD

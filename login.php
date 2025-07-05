@@ -4,12 +4,24 @@
  * Usa el patrón MVC con controlador dedicado
  */
 
+// Verificar si estamos en el nuevo sistema
+if (!defined('CRM_BOOTSTRAP_LOADED')) {
+    // Cargar bootstrap de transición
+    require_once __DIR__ . '/config/bootstrap.php';
+}
+
 // ============================================================================
 // INICIALIZACIÓN Y DEPENDENCIAS
 // ============================================================================
 
-// Incluir configuración principal
-require_once __DIR__ . '/config/config.php';
+// Cargar configuración nueva si existe, sino la antigua
+if (file_exists(__DIR__ . '/core/Application.php')) {
+    require_once __DIR__ . '/core/Application.php';
+    $app = new Application(__DIR__);
+    $app->initializeLegacySystem();
+} else {
+    require_once __DIR__ . '/config/config.php';
+}
 
 // Incluir clases de seguridad
 require_once __DIR__ . '/security/SecurityManager.php';

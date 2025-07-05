@@ -145,14 +145,33 @@ function isOriginAllowed($origin) {
 }
 
 /**
- * Detectar patrones de ataque en requests
+ * Detectar patrones de ataque en requests - VERSIÓN CORREGIDA
+ * Patrones más específicos y menos falsos positivos
  */
 function detectAttackPatterns($input) {
+    // Lista blanca de rutas permitidas
+    $allowedPaths = ['/login', '/dashboard', '/', '/api', '/logout', '/debug-security.php'];
+    
+    // Si es una ruta, verificar lista blanca primero
+    if (strpos($input, '/') === 0) {
+        $path = parse_url($input, PHP_URL_PATH);
+        if (in_array($path, $allowedPaths)) {
+            return false; // Permitir rutas específicas
+        }
+    }
+    
     $patterns = [
-        'sql_injection' => '/(\bunion\b|\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bdrop\b|\btruncate\b)/i',
-        'xss' => '/(<script|javascript:|onload=|onerror=|onclick=)/i',
-        'path_traversal' => '/(\.\.\/|\.\.\\\|%2e%2e%2f|%2e%2e%5c)/i',
-        'command_injection' => '/(\b(nc|netcat|wget|curl|ping|nslookup)\b|[;&|`])/i'
+        // SQL Injection - más específico
+        'sql_injection' => '/\b(union\s+select|select\s+.*\s+from|insert\s+into|update\s+\w+\s+set|delete\s+from|drop\s+table|or\s+1\s*=\s*1)\b/i',
+        
+        // XSS - más específico  
+        'xss' => '/<script[^>]*>|javascript\s*:|on\w+\s*=\s*["\'][^"\']*["\']>/i',
+        
+        // Path Traversal - más específico
+        'path_traversal' => '/(\.\.\/){2,}|(\.\.\\\\){2,}|(%2e%2e%2f){2,}/i',
+        
+        // Command Injection - MUY específico para evitar falsos positivos
+        'command_injection' => '/[\|;`]\s*(nc|netcat|wget|curl|cat|ls|rm|cp)\s+/i'
     ];
     
     foreach ($patterns as $type => $pattern) {
