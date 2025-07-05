@@ -33,10 +33,9 @@ class AuthController extends BaseController {
      */
     public function processLogin($request = null) {
         try {
-            // Obtener datos del formulario
             $data = $this->getRequestData();
             
-            // Validar datos básicos
+            // Validar datos
             $errors = $this->validate($data, [
                 'identifier' => ['required' => true, 'max_length' => 100],
                 'password' => ['required' => true, 'max_length' => 255]
@@ -44,44 +43,29 @@ class AuthController extends BaseController {
             
             if (!empty($errors)) {
                 $this->setMessage('error', 'Por favor, completa todos los campos requeridos.');
-                $this->setFormData($data);
                 $this->redirect('/login');
             }
             
             // Sanitizar datos
             $identifier = $this->sanitize($data['identifier']);
-            $password = $data['password']; // No sanitizar password
-            $rememberMe = isset($data['remember_me']);
+            $password = $data['password'];
             
-            // Intentar autenticación
-            if (class_exists('AuthManager')) {
-                $userIP = $this->getRealIP();
-                $result = \AuthManager::authenticate($identifier, $password, $userIP);
-                
-                if (isset($result['success']) && $result['success']) {
-                    // Login exitoso
-                    $this->setMessage('success', 'Bienvenido, ' . $result['user']['username']);
-                    
-                    // Guardar preferencias si recuerda
-                    if ($rememberMe) {
-                        $this->setRememberMeData($identifier);
-                    }
-                    
-                    $this->redirect('/dashboard');
-                } else {
-                    // Login fallido
-                    $errorMessage = $result['error'] ?? 'Credenciales incorrectas';
-                    $this->setMessage('error', $errorMessage);
-                    $this->setFormData(['identifier' => $identifier]);
-                    $this->redirect('/login');
-                }
+            // Intentar autenticación usando el servicio moderno
+            $auth = app('auth');
+            $userIP = $this->getRealIP();
+            $result = $auth::authenticate($identifier, $password, $userIP);
+            
+            if (isset($result['success']) && $result['success']) {
+                $this->setMessage('success', 'Bienvenido, ' . $result['user']['username']);
+                $this->redirect('/dashboard');
             } else {
-                $this->setMessage('error', 'Sistema de autenticación no disponible');
+                $errorMessage = $result['error'] ?? 'Credenciales incorrectas';
+                $this->setMessage('error', $errorMessage);
                 $this->redirect('/login');
             }
-            
+        
         } catch (\Exception $e) {
-            error_log('Error en login: ' . $e->getMessage());
+            error_log('Login error: ' . $e->getMessage());
             $this->setMessage('error', 'Error interno del servidor');
             $this->redirect('/login');
         }

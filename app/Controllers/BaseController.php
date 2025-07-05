@@ -26,8 +26,12 @@ class BaseController {
      * Cargar usuario actual desde la sesión
      */
     protected function loadCurrentUser() {
-        if (class_exists('AuthManager')) {
-            $this->user = \AuthManager::validateSession();
+       try {
+            $auth = app('auth');
+            $this->user = $auth::validateSession();
+        } catch (\Exception $e) {
+            error_log('Error loading user: ' . $e->getMessage());
+            $this->user = null;
         }
     }
     

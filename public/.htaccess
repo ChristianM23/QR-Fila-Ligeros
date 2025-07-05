@@ -1,0 +1,56 @@
+# ============================================================================
+# CRM LIGEROS v2.0 - CONFIGURACIÓN PARA PUBLIC/
+# ============================================================================
+
+RewriteEngine On
+
+# ============================================================================
+# RUTAS PRINCIPALES
+# ============================================================================
+
+# Permitir acceso a api
+RewriteRule ^api/(.*)$ ../api/index.php [QSA,L]
+
+# Permitir archivos estáticos (CSS, JS, imágenes) directamente
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Permitir directorios existentes
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# TODO LO DEMÁS va al router (index.php en public)
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# ============================================================================
+# PROTECCIÓN BÁSICA
+# ============================================================================
+
+# Proteger archivos sensibles que puedan estar en public
+<FilesMatch "\.(env|log|sql|bak|md)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ============================================================================
+# HEADERS BÁSICOS
+# ============================================================================
+
+<IfModule mod_headers.c>
+    # Seguridad básica
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Cache para assets
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "public, max-age=86400"
+    </FilesMatch>
+    
+    # No cache para archivos PHP
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
